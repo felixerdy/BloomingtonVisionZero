@@ -16,3 +16,11 @@ Technologies used:
 - React
 - Mapbox GL
 - Chart.js
+
+### Usage
+```
+git clone https://github.com/felixerdy/BloomingtonVisionZero.git
+cd BloomingtonVisionZero
+yarn install
+yarn run dev
+```
