@@ -77,7 +77,7 @@ class App extends Component {
     return (
       <div>
         <nav className="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
-          <div className="navbar-brand"><b>Bloominton Vision Zero</b></div>
+          <div className="navbar-brand"><b>Bloomington Vision Zero</b></div>
           <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
           </button>
