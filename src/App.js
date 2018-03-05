@@ -3,6 +3,7 @@ import './App.sass';
 import InteractiveMap from './Map';
 import DataLoader from './DataLoader';
 import TimeChart from './TimeChart';
+import Imprint from './Imprint'
 
 class App extends Component {
   monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -97,7 +98,7 @@ class App extends Component {
   }
 
   defaultCharts() {
-    this.setState({loading: true})
+    this.setState({ loading: true })
     for (let y = 2003; y <= 2015; y++) {
       DataLoader.getCount(y, undefined, undefined).then(data => {
         this.setState(prevstate => {
@@ -123,8 +124,10 @@ class App extends Component {
         this.setState(prevstate => {
           let tempArr = prevstate.weekdayHist;
           tempArr.push([w, data])
-          return { weekdayHist: tempArr,
-          loading: false }
+          return {
+            weekdayHist: tempArr,
+            loading: false
+          }
         })
       })
     }
@@ -216,10 +219,14 @@ class App extends Component {
                   <div className='spinner'></div>
                 </li>
               }
-              
+
+            </ul>
+            <ul className="nav navbar-nav navbar-right">
+              <li><div className="nav-link" onClick={() => this.refs.modal.toggle()}>About</div></li>
             </ul>
           </div>
         </nav>
+        <Imprint ref='modal'/>
         <InteractiveMap
           ref='map'
           mapData={this.state.mapData}
