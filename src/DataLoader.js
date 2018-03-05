@@ -1,5 +1,5 @@
 class DataLoader {
-  static getData(year, month, weekday, callback) {
+  static getData(year, month, weekday) {
     let SQLConditions = {}
     if (year >= 2003 && year <= 2015) {
       SQLConditions.Year = year
@@ -7,9 +7,10 @@ class DataLoader {
     if (month >= 1 && month <= 12) {
       SQLConditions.Month = month
     }
-    if (weekday >= 0 && weekday <= 6) {
+    if (weekday >= 1 && weekday <= 7) {
       SQLConditions.Day = weekday
     }
+    console.log(`https://data.bloomington.in.gov/api/action/datastore_search?resource_id=8673744e-53f2-42d1-9d05-4e412bd55c94&filters=${JSON.stringify(SQLConditions)}&limit=9999999999`)
     return new Promise((resolve, reject) => {
       fetch(`https://data.bloomington.in.gov/api/action/datastore_search?resource_id=8673744e-53f2-42d1-9d05-4e412bd55c94&filters=${JSON.stringify(SQLConditions)}&limit=9999999999`)
       .then((response) => {
@@ -29,7 +30,7 @@ class DataLoader {
     if (month >= 1 && month <= 12) {
       SQLConditions.push(`"Month" = ${month}`)
     }
-    if (weekday >= 0 && weekday <= 6) {
+    if (weekday >= 1 && weekday <= 7) {
       SQLConditions.push(`"Day" = ${weekday}`)
     }
     let myCondition = ``

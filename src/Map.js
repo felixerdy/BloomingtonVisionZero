@@ -98,97 +98,69 @@ class InteractiveMap extends Component {
         'type': 'geojson',
         'data': data
       });
+      this.map.addLayer({
+        'id': 'crashes-heat',
+        'type': 'heatmap',
+        'source': 'crashes',
+        "maxzoom": 12,
+        'paint': {
+          'heatmap-color': [
+            'interpolate',
+            ['linear'],
+            ['heatmap-density'],
+            0, 'rgba(33,102,172,0)',
+            0.2, '#63A69F',
+            0.4, '#F2E1AC',
+            0.6, '#F2836B',
+            0.8, '#F2594B',
+            1, '#CD2C24'
+          ],
+          // Transition from heatmap to circle layer by zoom level
+          "heatmap-opacity": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            7, 1,
+            12, 0
+          ],
+        }
+      });
+      this.map.addLayer({
+        "id": "crashes-point",
+        "type": "circle",
+        "source": "crashes",
+        "minzoom": 10,
+        "paint": {
+          // Color circle by earthquake magnitude
+          "circle-color": "#F2594B",
+          "circle-stroke-color": "#F2E1AC",
+          "circle-stroke-width": 1,
+          // Transition from heatmap to circle layer by zoom level
+          "circle-opacity": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            10, 0,
+            12, 1
+          ],
+          "circle-stroke-opacity": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            10, 0,
+            12, 1
+          ]
+        }
+      });
     } else {
       this.map.getSource('crashes').setData(data)
     }
-    this.map.addLayer({
-      'id': 'crashes-heat',
-      'type': 'heatmap',
-      'source': 'crashes',
-      "maxzoom": 12,
-      'paint': {
-        'heatmap-color': [
-          'interpolate',
-          ['linear'],
-          ['heatmap-density'],
-          0, 'rgba(33,102,172,0)',
-          0.2, '#63A69F',
-          0.4, '#F2E1AC',
-          0.6, '#F2836B',
-          0.8, '#F2594B',
-          1, '#CD2C24'
-        ],
-        // Transition from heatmap to circle layer by zoom level
-        "heatmap-opacity": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          7, 1,
-          12, 0
-        ],
-      }
-    });
-    this.map.addLayer({
-      "id": "crashes-point",
-      "type": "circle",
-      "source": "crashes",
-      "minzoom": 10,
-      "paint": {
-        // Color circle by earthquake magnitude
-        "circle-color": "#F2594B",
-        "circle-stroke-color": "#F2E1AC",
-        "circle-stroke-width": 1,
-        // Transition from heatmap to circle layer by zoom level
-        "circle-opacity": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          10, 0,
-          12, 1
-        ],
-        "circle-stroke-opacity": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          10, 0,
-          12, 1
-        ]
-      }
-    }, 'waterway-label');
   }
 
-  changeTime(timeFrame, timeValue) {
-    console.log(timeFrame, timeValue)
-    if (timeValue === -1) {
-      this.map.setFilter('crashes-heat', null);
-    } else {
-      this.map.setFilter('crashes-heat', ['==', timeFrame, timeValue.toString()]);
-    }
-  }
-
-  getNumberOfCrashes(timeFrame, timeValue) {
-    console.log(timeFrame, timeValue)
-    let counter = 0
-    this.state.crashes.features.forEach(e => {
-      if (timeFrame === "Day" && e.properties.Day === timeValue.toString()) {
-        counter++
-      } else if (timeFrame === "Hour" && e.properties.Hour === timeValue.toString()) {
-        counter++
-      } else if (timeFrame === "Month" && e.properties.Month === timeValue.toString()) {
-        counter++
-      } else if (timeFrame === "Year" && e.properties.Year === timeValue.toString()) {
-        counter++
-      }
-    })
-    return counter
-  }
-
-  getYearBounds() {
-    let tempArr = this.state.crashes.features.map((e) => { return e.properties.Year });
-    return {
-      'min': Math.min.apply(null, tempArr),
-      'max': Math.max.apply(null, tempArr)
-    }
+  clearMap() {
+    this.map.removeSource('crashes')
+    this.map.removeLayer('crashes-heat')
+    this.map.removeLayer('crashes-point')
   }
 
   render() {
