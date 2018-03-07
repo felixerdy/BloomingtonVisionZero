@@ -44,7 +44,7 @@ class App extends Component {
     // this.setData(undefined, undefined, undefined);
   }
 
-  setData(year, month, weekday) {
+  setData(year, month, weekday, bicycle, pedestrian) {
     this.setState({
       selectedYearLabel: year === undefined ? 'Year' : this.yearNames[year],
       selectedMonthLabel: month === undefined ? 'Month' : this.monthNames[month],
@@ -56,11 +56,13 @@ class App extends Component {
       monthHist: [],
       weekdayHist: [],
       filterEnabled: true,
-      loading: true
+      loading: true,
+      bicycle: bicycle,
+      pedestrian: pedestrian
     })
 
     for (let y = 2003; y <= 2015; y++) {
-      DataLoader.getCount(y, month + 1, weekday + 1, this.state.bicycle, this.state.pedestrian).then(data => {
+      DataLoader.getCount(y, month + 1, weekday + 1, bicycle, pedestrian).then(data => {
         this.setState(prevstate => {
           let tempArr = prevstate.yearHist;
           tempArr.push([y, data])
@@ -70,7 +72,7 @@ class App extends Component {
     }
 
     for (let m = 1; m <= 12; m++) {
-      DataLoader.getCount(this.state.selectedYearLabel, m, weekday + 1, this.state.bicycle, this.state.pedestrian).then(data => {
+      DataLoader.getCount(this.state.selectedYearLabel, m, weekday + 1, bicycle, pedestrian).then(data => {
         this.setState(prevstate => {
           let tempArr = prevstate.monthHist;
           tempArr.push([m, data])
@@ -80,7 +82,7 @@ class App extends Component {
     }
 
     for (let w = 1; w <= 7; w++) {
-      DataLoader.getCount(this.state.selectedYearLabel, month + 1, w, this.state.bicycle, this.state.pedestrian).then(data => {
+      DataLoader.getCount(this.state.selectedYearLabel, month + 1, w, bicycle, pedestrian).then(data => {
         this.setState(prevstate => {
           let tempArr = prevstate.weekdayHist;
           tempArr.push([w, data])
@@ -89,8 +91,8 @@ class App extends Component {
       })
     }
 
-    if (!(this.state.selectedYear === undefined && this.state.selectedMonth === undefined && this.selectedWeekday === undefined) || this.state.bicycle || this.state.pedestrian) {
-      DataLoader.getData(this.state.selectedYearLabel, month + 1, weekday + 1, this.state.bicycle, this.state.pedestrian).then(data => {
+    if (this.state.selectedYear !== undefined || this.state.selectedMonth !== undefined || this.state.selectedWeekday !== undefined || this.state.bicycle || this.state.pedestrian) {
+      DataLoader.getData(this.state.selectedYearLabel, month + 1, weekday + 1, bicycle, pedestrian).then(data => {
         this.setState({
           mapData: data,
           loading: false
@@ -229,7 +231,7 @@ class App extends Component {
                           pedestrian: false
                         }
                       }, () => {
-                        this.setData(this.state.selectedYear, this.state.selectedMonth, this.selectedWeekday, this.state.bicycle, this.state.pedestrian)
+                        this.setData(this.state.selectedYear, this.state.selectedMonth, this.state.selectedWeekday, this.state.bicycle, this.state.pedestrian)
                       })
                     }
                     }>
@@ -245,7 +247,7 @@ class App extends Component {
                           pedestrian: !prevState.pedestrian
                         }
                       }, () => {
-                        this.setData(this.state.selectedYear, this.state.selectedMonth, this.selectedWeekday, this.state.bicycle, this.state.pedestrian)
+                        this.setData(this.state.selectedYear, this.state.selectedMonth, this.state.selectedWeekday, this.state.bicycle, this.state.pedestrian)
                       })
                     }}>
                     <i className="material-icons">directions_walk</i>
