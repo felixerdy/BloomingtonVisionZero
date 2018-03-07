@@ -37,11 +37,12 @@ class InteractiveMap extends Component {
         if(!recordNumbers.includes(accident.properties['Master Record Number'])) {
           var coordinates = accident.geometry.coordinates.slice();
           var description = `
-            <b>Collision Type:  </b> ${accident.properties['Collsion Type']}<br />
+            <b>Hour:            </b> ${accident.properties['Hour']}<br />
+            <b>Collision Type:  </b> ${accident.properties['Collision Type']}<br />
             <b>Injury Type:     </b> ${accident.properties['Injury Type']}<br />
             <b>Primary Factor:  </b> ${accident.properties['Primary Factor']}<br />
           `
-    
+          console.log(accident)
           new mapboxgl.Popup()
             .setLngLat(coordinates)
             .setHTML(description)

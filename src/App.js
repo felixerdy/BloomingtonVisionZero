@@ -24,7 +24,9 @@ class App extends Component {
       selectedMonth: undefined,
       selectedWeekday: undefined,
       filterEnabled: false,
-      loading: false
+      loading: false,
+      bicycle: false,
+      pedestrian: false
     };
   }
 
@@ -57,10 +59,8 @@ class App extends Component {
       loading: true
     })
 
-    console.log(year, month, weekday)
-
     for (let y = 2003; y <= 2015; y++) {
-      DataLoader.getCount(y, month + 1, weekday + 1).then(data => {
+      DataLoader.getCount(y, month + 1, weekday + 1, this.state.bicycle, this.state.pedestrian).then(data => {
         this.setState(prevstate => {
           let tempArr = prevstate.yearHist;
           tempArr.push([y, data])
@@ -70,7 +70,7 @@ class App extends Component {
     }
 
     for (let m = 1; m <= 12; m++) {
-      DataLoader.getCount(this.state.selectedYearLabel, m, weekday + 1).then(data => {
+      DataLoader.getCount(this.state.selectedYearLabel, m, weekday + 1, this.state.bicycle, this.state.pedestrian).then(data => {
         this.setState(prevstate => {
           let tempArr = prevstate.monthHist;
           tempArr.push([m, data])
@@ -80,7 +80,7 @@ class App extends Component {
     }
 
     for (let w = 1; w <= 7; w++) {
-      DataLoader.getCount(this.state.selectedYearLabel, month + 1, w).then(data => {
+      DataLoader.getCount(this.state.selectedYearLabel, month + 1, w, this.state.bicycle, this.state.pedestrian).then(data => {
         this.setState(prevstate => {
           let tempArr = prevstate.weekdayHist;
           tempArr.push([w, data])
@@ -89,18 +89,26 @@ class App extends Component {
       })
     }
 
-    DataLoader.getData(this.state.selectedYearLabel, month + 1, weekday + 1).then(data => {
+    if (!(this.state.selectedYear === undefined && this.state.selectedMonth === undefined && this.selectedWeekday === undefined) || this.state.bicycle || this.state.pedestrian) {
+      DataLoader.getData(this.state.selectedYearLabel, month + 1, weekday + 1, this.state.bicycle, this.state.pedestrian).then(data => {
+        this.setState({
+          mapData: data,
+          loading: false
+        })
+      })
+    } else {
       this.setState({
-        mapData: data,
+        mapData: [],
         loading: false
       })
-    })
+      this.refs.map.clearMap();
+    }
   }
 
   defaultCharts() {
     this.setState({ loading: true })
     for (let y = 2003; y <= 2015; y++) {
-      DataLoader.getCount(y, undefined, undefined).then(data => {
+      DataLoader.getCount(y, undefined, undefined, false, false).then(data => {
         this.setState(prevstate => {
           let tempArr = prevstate.yearHist;
           tempArr.push([y, data])
@@ -110,7 +118,7 @@ class App extends Component {
     }
 
     for (let m = 1; m <= 12; m++) {
-      DataLoader.getCount(undefined, m, undefined).then(data => {
+      DataLoader.getCount(undefined, m, undefined, false, false).then(data => {
         this.setState(prevstate => {
           let tempArr = prevstate.monthHist;
           tempArr.push([m, data])
@@ -120,7 +128,7 @@ class App extends Component {
     }
 
     for (let w = 1; w <= 7; w++) {
-      DataLoader.getCount(undefined, undefined, w).then(data => {
+      DataLoader.getCount(undefined, undefined, w, false, false).then(data => {
         this.setState(prevstate => {
           let tempArr = prevstate.weekdayHist;
           tempArr.push([w, data])
@@ -146,6 +154,8 @@ class App extends Component {
       selectedWeekday: undefined,
       filterEnabled: false,
       mapData: [],
+      bicycle: false,
+      pedestrian: false
     })
 
     this.defaultCharts()
@@ -172,7 +182,7 @@ class App extends Component {
                       title="Year"
                       values={this.state.yearHist.sort((a, b) => a[0] - b[0]).map(e => parseInt(e[1], 10))}
                       labels={this.state.yearHist.sort((a, b) => a[0] - b[0]).map(e => e[0].toString())}
-                      dataSelected={(data) => this.setData(data, this.state.selectedMonth, this.state.selectedWeekday)}
+                      dataSelected={(data) => this.setData(data, this.state.selectedMonth, this.state.selectedWeekday, this.state.bicycle, this.state.pedestrian)}
                     />
                   }
                 </div>
@@ -187,7 +197,7 @@ class App extends Component {
                       title="Month"
                       values={this.state.monthHist.sort((a, b) => a[0] - b[0]).map(e => parseInt(e[1], 10))}
                       labels={this.state.monthHist.sort((a, b) => a[0] - b[0]).map(e => this.monthNames[e[0] - 1])}
-                      dataSelected={(data) => this.setData(this.state.selectedYear, data, this.state.selectedWeekday)}
+                      dataSelected={(data) => this.setData(this.state.selectedYear, data, this.state.selectedWeekday, this.state.bicycle, this.state.pedestrian)}
                     />
                   }
                 </div>
@@ -202,9 +212,44 @@ class App extends Component {
                       title="Weekday"
                       values={this.state.weekdayHist.sort((a, b) => a[0] - b[0]).map(e => parseInt(e[1], 10))}
                       labels={this.state.weekdayHist.sort((a, b) => a[0] - b[0]).map(e => this.dayNames[e[0] - 1])}
-                      dataSelected={(data) => this.setData(this.state.selectedYear, this.state.selectedMonth, data)}
+                      dataSelected={(data) => this.setData(this.state.selectedYear, this.state.selectedMonth, data, this.state.bicycle, this.state.pedestrian)}
                     />
                   }
+                </div>
+              </li>
+              <li>
+                <div className="btn-group" role="group" aria-label="Basic example">
+                  <button
+                    type="button"
+                    className={"btn btn-info " + (this.state.bicycle ? 'active' : "")}
+                    onClick={() => {
+                      this.setState(prevState => {
+                        return { 
+                          bicycle: !prevState.bicycle,
+                          pedestrian: false
+                        }
+                      }, () => {
+                        this.setData(this.state.selectedYear, this.state.selectedMonth, this.selectedWeekday, this.state.bicycle, this.state.pedestrian)
+                      })
+                    }
+                    }>
+                    <i className="material-icons">directions_bike</i>
+                  </button>
+                  <button
+                    type="button"
+                    className={'btn btn-info ' + (this.state.pedestrian ? 'active' : '')}
+                    onClick={() => {
+                      this.setState(prevState => {
+                        return { 
+                          bicycle: false,
+                          pedestrian: !prevState.pedestrian
+                        }
+                      }, () => {
+                        this.setData(this.state.selectedYear, this.state.selectedMonth, this.selectedWeekday, this.state.bicycle, this.state.pedestrian)
+                      })
+                    }}>
+                    <i className="material-icons">directions_walk</i>
+                  </button>
                 </div>
               </li>
               {
@@ -226,7 +271,7 @@ class App extends Component {
             </ul>
           </div>
         </nav>
-        <Imprint ref='modal'/>
+        <Imprint ref='modal' />
         <InteractiveMap
           ref='map'
           mapData={this.state.mapData}

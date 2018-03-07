@@ -1,5 +1,5 @@
 class DataLoader {
-  static getData(year, month, weekday) {
+  static getData(year, month, weekday, bicycle, pedestrian) {
     let SQLConditions = {}
     if (year >= 2003 && year <= 2015) {
       SQLConditions.Year = year
@@ -10,7 +10,12 @@ class DataLoader {
     if (weekday >= 1 && weekday <= 7) {
       SQLConditions.Day = weekday
     }
-    console.log(`https://data.bloomington.in.gov/api/action/datastore_search?resource_id=8673744e-53f2-42d1-9d05-4e412bd55c94&filters=${JSON.stringify(SQLConditions)}&limit=9999999999`)
+    if(bicycle) {
+      SQLConditions['Collision Type'] = 'Cyclist'
+    }
+    if(pedestrian) {
+      SQLConditions['Collision Type'] = 'Pedestrian'
+    }
     return new Promise((resolve, reject) => {
       fetch(`https://data.bloomington.in.gov/api/action/datastore_search?resource_id=8673744e-53f2-42d1-9d05-4e412bd55c94&filters=${JSON.stringify(SQLConditions)}&limit=9999999999`)
       .then((response) => {
@@ -22,7 +27,7 @@ class DataLoader {
     
   }
 
-  static getCount(year, month, weekday) {
+  static getCount(year, month, weekday, bicycle, pedestrian) {
     let SQLConditions = []
     if (year >= 2003 && year <= 2015) {
       SQLConditions.push(`"Year" = ${year}`)
@@ -32,6 +37,12 @@ class DataLoader {
     }
     if (weekday >= 1 && weekday <= 7) {
       SQLConditions.push(`"Day" = ${weekday}`)
+    }
+    if(bicycle) {
+      SQLConditions.push('"Collision Type" LIKE \'Cyclist\'')
+    }
+    if(pedestrian) {
+      SQLConditions.push('"Collision Type" LIKE \'Pedestrian\'');
     }
     let myCondition = ``
     for(var i = 0; i < SQLConditions.length; i++) {
